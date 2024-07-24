@@ -1,59 +1,44 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-void docProb(double **graph, int nodes, int time, int curNode, double p, double *answer){
-	if(time <= 0){
-		answer[curNode] += p;
-		return;
-	}
-
-	for(int i=1; i<=nodes; i++){
-		if(graph[curNode][i]!= 0){
-			p *= graph[curNode][i];
-			docProb(graph, nodes, time - 10, i, p, answer);
-			p /= graph[curNode][i];	
-		}
-	}
-
+void dfs(int node, vector<vector<double>> &adj, int time, double prob, vector<double> &ans){
+    if(time<=0){
+        ans[node]+=prob;
+        return;
+    }
+    int n=adj.size();
+    for(int i=1; i<=n-1; i++){
+        if(adj[node][i]!=0){
+            prob=prob*adj[node][i];
+            dfs(i,adj,time-10,prob,ans);
+            prob=prob/adj[node][i];
+        }
+    }
 }
-
+void doctProb(){
+    int n,m,t; cin>>n>>m>>t;
+    vector<vector<double>> adj(n+1,vector<double>(n+1,0.0));
+    for(int i=0; i<m; i++){
+        int u,v; double prob; cin>>u>>v>>prob;
+        adj[u][v]=prob;
+    }
+    vector<double> ans(n+1,0);
+    dfs(1,adj,t,1.0,ans);
+    double final_prob=0.0;
+    int final_div=0;
+    
+    for(int i=1; i<=n; i++){
+        if(ans[i]>final_prob){
+            final_prob=ans[i];
+            final_div=i;
+        }
+    }
+    cout<<final_div<<" "<<final_prob<<endl;
+}
 int main(){
-	int t;
-	cin >> t;
-	while(t--){
-		int nodes, edges, time;
-		cin >> nodes >> edges >> time;
-		
-		double **arr = new double*[nodes+1]; 
-		for(int i=1; i<=nodes; i++){
-			arr[i] = new double[nodes+1];
-			for(int j=1; j<=nodes; j++){
-				arr[i][j] = 0;
-			}
-		}
-
-		int from, to;
-		double prob;
-		for(int i=0; i<edges; i++){
-			cin >> from >> to >> prob;
-			arr[from][to] = prob;
-		}
-
-		/* Initalise answer and function call */
-		double answer[nodes+1] = {0.0};
-		docProb(arr, nodes, time, 1, 1.0, answer);
-		
-		/* Select max Probability node */
-		double finalProb = 0.0;
-		int finalDivison = 0;
-		
-		for(int i=1; i<=nodes; i++){
-			if(answer[i] > finalProb){
-				finalProb = answer[i];
-				finalDivison = i;
-			}
-		}
-		cout << finalDivison << " " << finalProb << "\n";
-	}
-	return 0;
+    int t; cin>>t;
+    while(t--){
+        doctProb();
+    }
+    return 0;
 }
