@@ -1,6 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+// can be done in both ways!
+// 1. using BFS
+// 2. using Dijkstra's Algorithm
+
 int chess_piece(){
     int n,m; cin>>n>>m;
     int sr,sc,dr,dc;
