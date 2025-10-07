@@ -1,0 +1,396 @@
+Chapter 2: OFDM (Orthogonal frequency division multiplexing) and MIMO (multiple input and multiple output) in LTE
+
+Access Methods
+- FDMA (Frequency based division -> UL and DL same TTI and occupy different bandwidth)
+- TDMA (Time based division -> UL and DL different TTI and occupy whole bandwidth)
+- CDMA / W-CDMA (Code Division and different code for different UE)
+  - Issue ->
+    - Frequency Selective Fading Effect, corrupt Signals
+    - Not decodable, can be recovered through turbo Coding
+    - Subcarrier Frequency Hopping -> to reduce freq. fading
+    - Tx can ask Rx for Channel Quality Reports
+
+OFDM -> combination of time and frequency division multiplexing
+- User can share resource in both T and F Domain
+
+ODFM-Advantages ->
+- Allows Adaptation to severe channel conditions without very complex equalization methods
+- Robust against Inter-Signal-Interference and Fading
+- High Spectral efficiency due to orthogonality
+- Low sensitivity
+
+OFDM-Disadvantages ->
+- Doppler Spreading and Frequency Sync errors
+- High PAPR (Peak to avg power ratio, issue in uplink for UE)
+
+OFDM-Significance of Orthogonality ->
+- In general, to avoid ISI, guard band is used between each Symbol
+- Orthogonality improves spectral efficiency, much more closely packed Symbols
+- The Demodulator of one SC doesn't see other SC
+- Very complex modulation and demodulation required, Discrete Fourier Transform, FFT algorithm required
+- LTE SCS -> 15 KHz, MBMS SCS -> 7.5 KHz and PRACH -> 1.25 KHz
+
+OFDM-Signal Generation -> 
+- Code Word (Bits) -> Standard Modulation -> N Symbols -> OFDM Modulation -> OFDM Symbol
+
+OFDM-Multipath Propagation ->
+- With Guard(Longer Active time period of a Symbol) time spacing -> NO ISI -> Low Spectral efficiency
+- Without Guard time -> ISI (due to multipath effects, different signal at different point of time)
+- Reduced Spectral Efficieny by 5-25%
+
+OFDM-Cyclic Prefix (Solution of the ISI) ->
+- To improve Spectral efficiency -> Fill the Guard Period -> Use CP
+- CP is last part of OFDM Symbol, make a copy of it and put in front, hence prefix
+- Normal and Extended Length of CP
+- Normal(7 Symbols per slot) and Extended(6 Symbols per slot)
+
+OFDM-Signal Generation(FFT)(for Downlink) ->
+- Code Word(bits) -> Standard Modulation -> Block of N symbols -> RE Mapping in time and frequency Domain + Ref Signals + Control Channels + Data UE1,2,3 -> OFDM Modulation -> OFDM Symbol [contains SC min=72(in 1.4Mhz) and max=1200(in 20MHz)
+- OFDM Modulation = Block of N Symbols -> S/P -> IFFT -> P/S + Added CP -> D/A Conversion -> Analog Signal
+
+OFDM-Signal Generation(for Uplink-SC_FDMA) ->
+- Due to High PAPR, UE has limited Power capacity to transmit this Signals.
+- N symbol Block -> S/P -> FFT -> RE Mapper -> IFFT -> P/S + CP -> D/A Conversion -> Analog Symbol
+
+
+MIMO-Multi Antenna Config ->
+- SISO 
+- SIMO (Recieve Diversity - Spatial Diversity) -> Repeated Version of same info or different version can be combined later
+- MISO (Transmit Diversity - Spatial Diversity) -> one of the copy recieved is good enough.
+- MIMO (Spatial Multiplexing) -> Required High Speed DSPs and Expensive
+	Increase the cell throughput without increasing bandwidth
+	Using Law of Information theory, Capacity increase Log with Antennas
+	Avoids Multipath reception issue.
+- SU-MIMO -> Single User
+- MU-MIMO -> Multiple User
+
+MIMO-Spatial Diverisity ->
+- Closed Loop => Data Symbols(Transmit Diversity) -> Reciever (SNR Measurements)  [Get Feedback if Low SNR Reported]
+- Open loop => Vectors of Modulation Symbols * Precoding Matrix Index with delay diversity -> Reciever -> Passed to FEC correction
+- PMI Feedback decide wheather Closed Loop or Open Loop.
+- Required MIMO to prevent from ISI
+- In closed Loop -> Reciever must send feedback periodically to transmitter (Preffered PM)
+- In Open Loop -> Don't Require Preffered PM.
+
+LTE-Radio Frame ->
+- Min UE Allocation -> 1PRB
+- Min System BW -> 6PRB
+- Max System BW -> 100 PRB
+- 1PRB -> 12 SCS * 1 Slot (7 Symbols in normal CP)
+
+LTE Radio Frame-Downlink ->
+- One Subframe = Data Region  + Control Region
+- Control Region = PCFICH(Mapped to 4 REGs, contain length of Control Region)+ PHICH(mapped to 3 REGs, uplink HARQ Information) + PDCCH(mapped to 1,2,4,8 CCEs, 1 CCE= 9REGs over full system BW) : Generally 1-3 OFDM Symbol/Subframe
+- PDSCH -> PRB Allocation for Data Transmission
+- Reference Signal for Each Antenna Ports
+- More Antenna Ports, Less Region in PDSCH for Data Transmission
+
+LTE Radio Frame-Uplink ->
+- One Subframe = Data Region + Control Region
+- Uplink Transmission for UE is either PUSCH or PUCCH.
+- PUCCH Region = 1PRB on top + 1PRB on Bottom + DMRS
+- PUSCH Region = All Remaining Region + DMRS for PUSCH (Demodulation Reference Signal)
+- PUSCH DMRS - in centre
+- PUCCH(DMRS) Format 1 -> 3 Consecutive SC_FDMA Signal in between
+- PUCCH(DMRS) Format 2 -> 2nd and 6th Slot in 1 PRB
+
+
+Chapter 3: Synchronization and Network Access
+
+Basic Information and Flow ->
+- PowerON -> Cell Search  -> System Information Acquisition -> Random Access -> UL/DL Data Transmission
+- PowerON -> Actively Searching for the E-UTRA Service
+- Cell Search -> UE Sync to Network in the time and Frequency Domain
+	Time Sync -> UE must autonomously detect the radio frame and OFDM Symbol timing in the cell
+	Frequency Sync -> UE must autonomously detect the Subcarrier frequency and the Downlink system BW.
+- System Information Acquisiton -> eNB send information to UE about basic params governing IDLE and CONNECTED MODE, the broadcasted information contains SFN and SIB2 contains PRACH Config.
+- Random Access -> UE makes the first contact with eNB over PRACH, UE wants to register int he network(initial attach), UE has been paged for downlink data or signalling tx and RA also used for new cell during handover.
+
+
+E-UTRA Tranmssion Model ->
+- Synchronization and SI Aquisition 
+	UE <- Synchronization Signals <- eNB [PSS,SSS1,SSS2][Frame and Slot Sync]
+	UE <- MIB(SFN) <- eNB [PBCH]
+	UE <- SIB2(PRACH Config) <- eNB [PDSCH]
+- Random Access 
+	UE -> Random Access Preamble -> eNB [PRACH] [Message 1]
+	UE <- DL Assignment(RA-RNTI) <- eNB [PDCCH]
+	UE <- Random Access Response(RAR, TC-RNTI, UL Grant) <- eNB [PDSCH] [Message 2]
+- Contention Resolution
+	UE -> RRC Connection Request(S-TMSI) -> eNB [PUSCH] [Message 3]
+	UE <- HARQ ACK <- eNB [PHICH]
+	UE <- DL Assignment(TC-RNTI) <- eNB [PDCCH]
+	UE <- RRC Connection Setup: STMSI, SRB1 Config <- eNB [PDSCH]
+	UE -> HARQ ACK -> eNB [PUCCH]
+	EU
+	
+Cell Search-72 Subcarrier Example ->
+- PSS,SSS,PBCH -> mapped around center subcarrier called Direct Current
+- PSS -> (7th Symbol) Slot 0 and Slot 10 around time and 62 Subcarrier around Frequency.
+- SSS1 -> Slot 0 (6th Symbol) 62 Subcarrier around frequency
+- SSS2 -> Slot 10(6th Symbol) 62 Subcarrier around frequency
+- PBCH -> for MIB (Slot 1 of each Radioframe) - 1 to 4th Symbol
+
+Cell Search-Synchronization Signal Generation ->
+- Physical Cell Identity(0-503) = 3*Group_ID(0-167) + Cell_Id(0-2)
+- Generation of Sync Signal ->
+- Cell ID -> Zadoff_Chu Sequence Generator -> OFDM D/A -> PSS
+- Interleaving in Frequency Domain ->
+- Cell ID + Group ID -> M sequence Generator (M1 and M2) -> SSS1
+- Cell ID + Group ID -> M sequence Generator (M2 and M1) -> SSS2
+
+Cell Search-PBCH Generator ->
+- PBCH carries MIB(24 Information Bits)
+- CRC Mask depends on number of Antenna on eNB
+- 24 Information Bits -> CRC 16 and Masking -> 40 Bits -> Convolutional Coding -> 120 Bits -> Interleaving and Rate Matching -> 1920 Bits -> Scrambling and Modulation(QPSK) -> 960 Bits -> Precoding RE Mapping -> 4Ports Antenna -> 72 SCS TX
+- 8-State Parallel Convolutional Coder -> Systematic Bits + Parity 1 and 2 Bits + Trellis Bits(12)
+
+Cell Search-System Information ->
+- Sent on PBCH(40ms TTI) -> eNB to UE -> MIB -> DL Bandwidth/System Frame Number/ PHICH Information
+- Sent on PDSCH(80ms TTI) -> eNB to UE -> SIB1 -> PLMN ID/TAC/SIB MAPPING/Cell selection information.
+- Sent on PDSCH(80-5120ms TTI) -> eNB to UE -> SIB2(PhyCH config)/SIB3-8(Cell Reselection Info)/SIB9(Home eNB Identifier)/SIB10-11(ETWS)
+
+Random Access-Signalling ->
+- RA used for initial idle-to-connected transition/handover/timing advance update/uplink schedule request when no PUCCH is allocated
+- Start when UE -> Preamble Config -> eNB (64 RA Preamble)
+- UE chooses preamble from 2 groups, based on bits to transmit [for Message 3]
+- UE gets RA-RNTI on PDCCH, not UE specific (where and when RA was transmitted)
+- Based on the Preamble config, UE identifies it.
+- Along with uplink grant and preamble ID, C-RNTI, Timing Advance
+- This UL Grant allows to first send to Layer 3 RRC Connection Request to eNB(Message 3).
+
+Random Access-PRACH Config ->
+- PRACH Config transmitted from the eNB to UE on PDSCH with PRACH Config Index.
+- It Contains Preamble format and subframes what and when to send the Preamble to eNB.
+
+Random Access-Preamble formats ->
+- Preamble format(0-4) [CP length + Sequence Length]
+- Preamble = Long CP + Preamble Sequence + Gaurd Bands to prevent Spill over to Normal Uplink transmission
+- Format 0 -> Small Range, Format 1-3 -> Larger Cells, TDD -> Format 4
+- PRACH Root Sequence -> Zadoff-Chu Sequence Generator -> 839 -> RE Mapping -> 864 Inputs used -> SC-FDMA -> Insert CP -> D/A -> Transmit
+
+Chapter 4: Downlink Transmission Procedures
+
+Scheduling-Layer1 Timing ->
+- DL-SCH Carries data for LTE Terminals, 1 or 2 TB/UE are delivered from DL-SCH to PDSCH (2TB in case of MIMO)
+- Information transmitted must have MCS and PRB allocation
+- Rate Matching -> Needed Sometimes -> to adapt to no. of coded Information bits available according to  Physical Channel Resources and Channel Conditions
+- Redundancy Version Decide which bits to code by MAC Packet Scheduler [Adaptive Coding]
+- Modulation Schemes -> QPSK, 16QAM, 64QAM MCS
+- Conclusion -> eNB selects TB Size, MCS, RV, PRBs, Antenna Mapping
+- eNB must have information before selecting above to transmit through PDCCH:
+	- Availability of Radio Resources -> DL Resources available, ISI, PowerMgmt
+	- UE Capabilities -> from MME bearer Setup, TB Size Supported + Antenna
+	- QOS Params -> from MME S1AP Bearer Setup, Scheduling Weights, Priority
+	- Downlink Channel Conditions -> Channel State Information(CSI) in Uplink in PUSCH -> sent to eNB from UE -> Content of CSI depends on TM Mode -> Contains Channel Quality Indicator(CQI) + For Spatial Multiplexing(Rank Indications(RI) Number of Tx Layers + Preffered Precoding Matrix Index(PMI) Closed Loop)
+	- UE Needs to Decode PDCCH -> PDCCH mapped to per Subframe in Control Region -> Size of Control Region in PCFICH(First Symbol,4REGs) -> PDCCH formed by Aggregation of Control Channel Elements(CCE)(9REGs) -> UE Tries to decode this inforamtion from TM Mode and Search Spaces(Blind Decoding)
+	- PDCCH Contains -> C-RNTI,PRBs Allocation,MCS,HARQ ID and RV, RAT Type
+	- HARQ -> HARQ ACK/NACK in subframe n+4 in the PUCCH, if NACK, RTx in n+8 in FDD
+	- HARQ is Asynchronous 
+	
+Scheduling-DCI Format ->
+- DCI Format -> Resource Assignment Carried (Actual Params in PDCCH)
+- DCI Formats -> 
+	- Format 0 -> Uplink Grant + Contiguous PRB
+	- Format 1 -> DL Assignment + Conti/Non-Conti PRB
+	- Format 1A -> DL Assignment + Conti PRB
+	- Format 1B -> DL Assignment + Conti PRB + Precoding Info for Beamforming
+	- Format 1C -> Paging Info + RAR + SIB
+	- Format 1D -> MU-MIMO
+	- Format 2 -> DL Assigment + Conti/Non-Conti PRB + MU-MIMO
+	- Format 2A -> Spatial Multiplexing(Open Loop MIMO)
+	- Format 3 -> Power Control Commands (1Bit/UE)
+	- Format 3A -> Power Control (2Bit/UE)
+	
+Scheduling-PRB Allocation Types ->
+- Part of DCI/PDCCH -> Aggregated using CCE
+- DCI Information -> 
+	- UE Specific(C-RNTI,SPS-RNTI) or common(P-RNTI,RA-RNTI)
+	- RB Assignment, RAT Type
+	- MCS. RV, NDI
+	- HARQ Process ID
+	- PreCoding Matrix Information
+	- PUCCH Transmit Power Command
+	- System Bandwidth -> (Based on it) -> RBG Size 
+- Resource Allocation Type 0 -> Assigns Set of RBG(Resource Block Groups), 1RBG -> Set of Contiguous PRBs, 1RBG = 1,2,3,4 depend on Bandwidth, Bitmap
+- Resource Allocation Type 1 -> Set of Single PRBs, for larger System Bandwidth, Divided in the Subset, Bitmap
+- Resource Allocation Type 2 -> Set of Contiguous RBs, Companct, RIV(Resource Indication Value = Start Index + Length), Conti/Non-Conti, Can be Localized and Distributed VRB-to-PRB Mapping.
+
+Scheduling-Signalling of MCS and TB Size ->
+- For Uplink and Downlink Assignment -> eNB give MCS to UE
+- MCS Index -> Modulation Order -> TB Size Index
+- TB Size Index -> PRB Allocation Number
+
+Scheduling-Channel State Reporting ->
+- eNB configures the UE to send the Channel Status Report through RRC Signalling[PDCCH]
+- CSR Reporting -> Periodic and Aperiodic
+- Periodic Report -> (2-128ms) -> CQI/PMI and RI for MIMO Oprs. (PUCCH)
+- Aperiodic Report ->  Sent over UL grant or RAR on PUSCH
+
+DL-SCH Processing-Channel Coding ->
+- ITB(12960 Bits) -> CRC24 Masking(Bit Error Detection) -> 12984 Bits -> Codem Block Segmentation + CRC24 Masking (Maximum Size of Turbo Coder in LTE is 6144 Bits) -> 3Code Blocks(4352 Bits/Block) -> Turbo Coding -> 13068 Bits * 3 -> Interleaving and Rate Matching -> 8800 * 3 Bits -> Code Block Concatenation -> 26400 Bits 
+
+DL-SCH Processing-Turbo Coding ->
+- Parallel Concatenated Convolutional Code (PCCC)
+- Two 8-State Constituent Encoders
+- Output = Systematic Bits + Parity 1 and 2 Bits + Trellis Bits(12)(For Resetting the coder)
+
+DL-SCH Processing-Rate Matching ->
+- Rate Matching means Bits to Transmit are Repeated or Punctured to adapt to the available Physical Resource and Channel Conditions
+- Circular Buffer Concept Used -> Systematic Bits(1/3rd Portion) + Remaining 2/3rd as buffer
+- A subset is selected from the Buffer and transmitted based on the RV and Rx are done to complete the information, offset based on the RV(0,1,2,3)
+
+DL-SCH Processing-Scrambling and Modulation ->
+- 1 Code Word(26400 Bits) -> Cell Specific Scrambling(PhyC ID + Pseudo Random Sequence Generation)(to prevent ISI) -> Modulation -> 16QAM -> 6600 Symbols -> Layer Mapping(2Layers) -> Precoding -> RE Mapping -> OFDM Signal Generation
+
+PCFICH-Coding and Mapping ->
+- PCFICH contains 2 bits of Information
+- 2 Bits -> PhyC ID + Scrambling -> 32 Bits Sequence -> Modulation(QPSK) -> 16 Modulation Symbols -> 4REGs Mapped
+- Present in the 1st Symbol
+
+PDCCH-Channel Coding ->
+- DCI PDCCH(Size of PDCCH depends on DCI Format) -> CRC16 Masking -> Convolutional Coding(Rate=1/3) -> Interleaving and Rate Matching -> Multiplexing of Multiple PDCCH and Aggregated to CCE -> Scrambling Modulation(QPSK) -> Precoding and Mapping -> OFDM D/A -> Control Region
+
+PDCCH-PDCCH Formats and Search Spaces ->
+- PDCCH Formats (0,1,2,3) -> Number of CCEs(1,2,4,8)
+- To Limit the Number of Attempts UE to go through to Decode the PDCCH
+- Aggregation Level, How many CCE used for Mapping of PDCCH
+- UE Specific Searching(C-RNTI,SPS-RNTI) or Common Search Spaces(P-RNTI,RA-RNTI)
+
+Chapter 5: Uplink Transmission Procedures
+
+Scheduling-Layer 1 Timing
+- UE Must explicitly send the SR(Scheduling Request to the eNB) on PUCCH if configured either on PRACH
+- PUSCH and PUCCH transmission is not allowed from single UE in the same SFN
+- UCI is multiplexed in the PUSCH Channel, if UE has valid uplink grant
+- PDCCH Format 0 -> Uplink Grant -> Only Conti RBs -> Send PRBs, HARQ ID, RV, RAT
+- Synchronous HARQ with HARQ RTT of 8 TTI (Fixed Subframe HARQ RETX)
+- HARQ through PHICH(1Bit) -> Mapped to 3 REGs 
+- HARQ can be Non-Adaptive ReTx -> UEs has same MCS/PRB config as init transmission or Adaptive ReTx -> eNB may trigger by issuing uplink grant on PDCCH, it will override PHICH with new MCS/PRB.
+
+Scheduling-BSR(Buffer Status Reporting)
+- No MIMO Operation in the Uplink till Rel 10
+- UEs Capability, QoS requirements of uplink Channel need to know
+- BSR -> Amount of Data waiting for the Transmission
+- PHR -> Power Headroom Report -> UE has enough power available for tx
+- SRS for estimate the SC for Uplink Tx
+
+UL-SCH Processing ->
+- 1TB -> CRC24 -> Code Block Segmentation(3Parts) -> Turbo Coding -> Interleaving and Rate Matching -> Code Block Concatenation + UCI Multiplexed -> Data/Control Multiplexed -> Scramnbling -> Modulation -> Transform Precoding -> RE Mapping -> SC-FDMA Signal Gen
+
+PUCCH-Coding and Mapping ->
+- PUCCH Format -> UCI Format 
+- Format 1 -> SR, Format 1A -> ACK/NACK for 1TB + SR, Format 1B -> ACK/NACK for 2TB + SR [1 or 2 Bits] [Middle 3 Symbol]
+- Format 2 -> CSI, Format 2A -> ACK/NACK for 1TB + CSI, Format 2B -> ACK/NACK for 2TB + CSI [A Bits] [ 2nd and 2nd Last Symbol]
+
+PHICH-Coding and Mapping ->
+- HARQ Indication -> 1 Bit -> 0 for NACK and 1 for ACK
+- Repeating 3 -> Spreading Factor=4 -> 12 Bits -> 8PHICHs are added together and scramble with Cell ID -> 3 REGs mapped4
+- Min PHICH Grp -> 1 to Max 25
+
+
+
+
+# LTE Attach Procedure – Master Notes
+
+---
+
+## 1. Purpose of LTE Attach
+The **Attach procedure** is the **first step when UE (User Equipment)** connects to the LTE network.
+
+### Goals:
+- Identify UE to the network.
+- Authenticate UE and secure communication.
+- Allocate IP address to UE for data services.
+- Create EPS Bearer for always-on connectivity.
+- Move UE to **EMM-Registered State**.
+
+---
+
+## 2. Key Network Elements & Interfaces
+
+| Element      | Role                                       | Key Interface |
+|--------------|-------------------------------------------|--------------|
+| **UE**       | Mobile device initiating attach            | Uu           |
+| **eNB**      | LTE base station                          | S1           |
+| **MME**      | Control plane entity for authentication & bearer setup | S1-MME |
+| **HSS**      | Stores subscriber data (IMSI, auth vectors)| S6a         |
+| **SGW**      | Routes user plane data                    | S11, S5      |
+| **PGW**      | Allocates IP address & external connectivity | S5        |
+
+**Important Interfaces:**
+- **Uu:** UE ↔ eNB → RRC/NAS messages  
+- **S1-MME:** eNB ↔ MME → S1AP signaling  
+- **S11:** MME ↔ SGW → GTP-C signaling  
+- **S5:** SGW ↔ PGW → GTP-C (control) & GTP-U (user plane)
+
+---
+
+## 3. Complete Attach Flow (Step-by-Step)
+
+---
+
+### **Step 1 – Random Access (RA) Procedure**
+**Goal:** UE synchronizes with the network and requests initial access.
+
+**Key Steps:**
+1. **RA Preamble (UE → eNB):**
+   - Sent via PRACH (Physical Random Access Channel).
+   - Contains preamble sequence to indicate UE presence.
+
+2. **RA Response (eNB → UE):**
+   - Provides:
+     - Timing Advance (TA) – adjust UE timing.
+     - UL Grant – permission for uplink transmission.
+     - Temporary C-RNTI (TC-RNTI) – temporary ID for UE.
+
+3. **RRC Connection Request (UE → eNB):**
+   - Contains S-TMSI or Random ID.
+   - Includes Establishment Cause (e.g., attach).
+
+4. **RRC Connection Setup (eNB → UE):**
+   - Configures SRB1 and control channels.
+   - Promotes **TC-RNTI → permanent C-RNTI**.
+
+5. **RRC Connection Setup Complete (UE → eNB):**
+   - Contains NAS Attach Request (first NAS message).
+
+**Key Point:**  
+After this step, UE is ready for **core network authentication**.
+
+---
+
+### **Step 2 – NAS Attach Request**
+**Purpose:** UE requests registration with the core network.
+
+**Contents of NAS Attach Request:**
+- Old GUTI (Globally Unique Temporary Identifier) or IMSI.
+- Last TAI (Tracking Area Identifier).
+- UE network capabilities (encryption, integrity algorithms).
+- PDN Connectivity Request:
+  - IP type (IPv4, IPv6).
+  - APN (Access Point Name).
+  - Requested QoS.
+
+---
+
+### **Step 3 – Authentication (MME ↔ UE ↔ HSS)**
+**Goal:** Verify UE identity using **AKA (Authentication & Key Agreement)** procedure.
+
+**Flow:**
+1. MME requests authentication vectors from HSS.
+2. **MME → UE (Authentication Request):**
+   - Includes RAND (random challenge) and AUTN (authentication token).
+3. **UE Verification:**
+   - UE verifies AUTN.
+   - Generates RES (Response).
+4. **UE → MME (Authentication Response):**
+   - Sends RES to MME.
+5. **MME Validation:**
+   - Compares RES with expected value.
+   - If match → UE authenticated.
+   - If mismatch → Attach procedure stops immediately.
+
+---
+
+### **S
