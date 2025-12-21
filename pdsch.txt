@@ -1,0 +1,273 @@
+# 📡 README: Understanding PDSCH (Physical Downlink Shared Channel) in LTE
+
+This document explains the **end-to-end concept, flow, and implementation aspects of PDSCH** in LTE downlink.  
+It is structured slide-by-slide to match the presentation flow and is written to be **self-explanatory**, even without verbal narration.
+
+---
+
+## Slide 1: Introduction & Motivation
+
+PDSCH (Physical Downlink Shared Channel) is the **core data-bearing channel** in LTE downlink.  
+All user plane data transmitted from the eNB to the UE ultimately flows through PDSCH.
+
+The overall LTE downlink performance—such as:
+- Throughput
+- Latency
+- Block Error Rate (BLER)
+- User experience
+
+is **directly dependent on how efficiently PDSCH is scheduled and transmitted**.
+
+Understanding PDSCH is therefore critical to understanding LTE PHY behavior.
+
+---
+
+## Slide 2: LTE Channel Architecture
+
+LTE follows a **layered channel architecture**, separating concerns across layers.
+
+### Channel Types:
+- **Logical Channels** – define *what kind of data* is transmitted
+- **Transport Channels** – define *how data is transported*
+- **Physical Channels** – define *where data is transmitted in time/frequency*
+
+### Example Mapping:
+- DTCH (user data)  
+  → DL-SCH (transport channel)  
+  → **PDSCH (physical channel)**
+
+Control information follows a similar path and is transmitted using **PDCCH**.
+
+This mapping explains why PDSCH is tightly coupled with MAC and PHY layers.
+
+---
+
+## Slide 3: Downlink Transmission Flow
+
+The LTE downlink data path flows through multiple layers:
+
+Application → RLC → MAC → PHY → RF
+
+- **RLC** performs segmentation and reassembly
+- **MAC** handles scheduling, HARQ, and multiplexing
+- **PHY** performs channel coding, modulation, and resource mapping
+
+A key principle:
+> MAC decides *what* to transmit, PHY decides *how* to transmit.
+
+---
+
+## Slide 4: Control Plane vs Data Plane
+
+LTE downlink transmission is split into:
+- **Control Plane** → PDCCH
+- **Data Plane** → PDSCH
+
+PDCCH does not carry user data.  
+Instead, it carries **instructions** that tell the UE:
+- Where PDSCH data is located
+- How to decode it (MCS, HARQ, etc.)
+
+Without correct PDCCH decoding, PDSCH decoding is impossible.
+
+---
+
+## Slide 5: Basics of PDCCH
+
+PDCCH carries **Downlink Control Information (DCI)**.
+
+DCI typically contains:
+- Resource block allocation
+- Modulation and Coding Scheme (MCS)
+- HARQ process ID and redundancy version
+
+PDCCH occupies the **first few OFDM symbols** in a subframe and is decoded before PDSCH.
+
+This establishes a strict dependency:
+> PDCCH → PDSCH
+
+---
+
+## Slide 6: What is PDSCH?
+
+PDSCH is the **primary physical channel used for downlink data transmission**.
+
+It carries:
+- User plane data
+- Certain system information when required
+
+Key characteristics:
+- Dynamically scheduled every subframe
+- Uses adaptive modulation and coding
+- Supports HARQ retransmissions
+
+PDSCH is highly flexible and optimized for varying channel conditions.
+
+---
+
+## Slide 7: Inter-Layer Communication (MAC ↔ PHY)
+
+MAC and PHY communicate through well-defined interfaces.
+
+MAC provides PHY with:
+- Transport Block (TB)
+- Resource allocation information
+- MCS index
+- HARQ process ID
+- Redundancy Version (RV)
+
+PHY uses this information to perform actual signal generation.
+
+This separation enables:
+- Clean modular design
+- Independent optimization of MAC and PHY
+
+---
+
+## Slide 8: PDSCH PHY Processing Chain
+
+Once MAC hands over the Transport Block, PHY performs the following steps:
+
+Transport Block  
+→ CRC attachment  
+→ Code block segmentation  
+→ Turbo encoding  
+→ Rate matching  
+→ Scrambling  
+→ Modulation  
+→ Layer mapping  
+→ Precoding  
+→ Resource element mapping  
+
+Each step transforms the data to make it robust, efficient, and suitable for transmission over the air.
+
+---
+
+## Slide 9: Pre-Processing in PDSCH
+
+Pre-processing ensures reliability before transmission.
+
+- **CRC Attachment** enables error detection at the receiver
+- **Code Block Segmentation** divides large TBs into manageable blocks
+- **Turbo Encoding** adds redundancy for error correction
+- **Rate Matching** adjusts encoded bits to match selected MCS
+
+This stage directly impacts decoding success probability.
+
+---
+
+## Slide 10: Scheduling & Resource Allocation
+
+Scheduling decisions are made at the MAC layer and determine:
+- Which UE is served
+- How many Resource Blocks (RBs) are allocated
+- Which MCS and HARQ process is used
+
+### Resource Allocation Types:
+- **Type 0** – Bitmap-based allocation using RBGs
+- **Type 1** – Distributed VRBs across frequency
+- **Type 2** – Localized contiguous RB allocation (most common)
+
+Localized allocation enables frequency-selective scheduling and higher throughput.
+
+---
+
+## Slide 11: Modulation and Coding Scheme (MCS)
+
+MCS defines:
+- Modulation type (QPSK, 16QAM, 64QAM)
+- Coding rate
+
+MCS selection is based on **CQI feedback from the UE**, which reflects channel quality.
+
+Higher MCS increases throughput but also increases error risk, making MCS selection a critical trade-off.
+
+---
+
+## Slide 12: Transport Block Size (TBS)
+
+TBS represents the number of bits transmitted in one subframe.
+
+It is determined by:
+- Selected MCS index
+- Number of allocated RBs
+
+TBS values are standardized in **3GPP TBS tables**, ensuring interoperability and reliable decoding.
+
+---
+
+## Slide 13: HARQ in PDSCH
+
+HARQ (Hybrid ARQ) improves reliability and efficiency.
+
+Key concepts:
+- Multiple parallel HARQ processes
+- Incremental redundancy
+- ACK/NACK feedback from UE
+
+Instead of retransmitting the same data, HARQ sends additional redundancy, improving decoding probability.
+
+---
+
+## Slide 14: Implementation / Code-Level View
+
+From an implementation perspective, PDSCH processing follows a structured flow:
+
+schedule_pdsch()  
+→ compute_rb_allocation()  
+→ select_mcs()  
+→ compute_tbs()  
+→ encode_and_map_pdsch()  
+
+Most implementations are:
+- Table-driven
+- Configurable
+- Closely aligned with 3GPP specifications
+
+---
+
+## Slide 15: End-to-End Example
+
+Example scenario:
+- UE allocated 10 RBs
+- CQI reported as 9
+- Selected modulation: 16QAM
+- Corresponding MCS and TBS selected
+- Bits mapped to OFDM resource elements
+
+This example shows how scheduling, link adaptation, and PHY processing interact.
+
+---
+
+## Slide 16: Challenges & Optimizations
+
+Real-world challenges include:
+- Limited PDCCH capacity
+- Resource fragmentation
+- Throughput vs BLER trade-off
+- HARQ timing constraints
+
+Optimizing PDSCH requires balancing performance, reliability, and control overhead.
+
+---
+
+## Slide 17: Summary & Key Takeaways
+
+- PDSCH is the backbone of LTE downlink
+- Performance depends on scheduling and channel adaptation
+- Tight MAC–PHY interaction is essential
+- Efficient PDSCH design directly impacts user experience
+
+---
+
+## Slide 18: Q&A / Discussion
+
+Common discussion topics:
+- Why localized allocation is preferred
+- Difference between CQI and MCS
+- HARQ behavior and benefits
+- PDSCH vs PUSCH comparison
+
+---
+
+# ✅ End of README
