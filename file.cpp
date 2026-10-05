@@ -42,3 +42,62 @@ Target:
 9> Adehering to monthly dev KPI's
 10>Zero follow up culture
 11> Completes all the mandatory trainings on time
+
+
+
+
+
+
+
+
+Position Summary
+
+
+
+We are seeking a hands-on, mid-level GenAI / RAG Engineer (1–4 years of experience) to design, scale, and maintain robust Retrieval-Augmented Generation (RAG) pipelines. In this role, you will bridge the gap between raw enterprise data and LLMs, developing highly accurate, grounded, and low-latency AI applications. You will be responsible for optimizing document ingestion, perfecting semantic search retrieval, managing vector databases, and ensuring production-grade code reliability.
+
+
+
+Role and Responsibilities
+
+
+
+Key Responsibilities:1. Pipeline Engineering: Design, implement, and optimize end-to-end RAG pipelines, including advanced document parsing, chunking strategies, and prompt engineering.
+
+2. Search & Retrieval Optimization: Develop hybrid search architectures (dense vector retrieval combined with keyword-based BM25 search) and integrate cross-encoder rerankers to maximize retrieval accuracy.
+
+3. Database Management: Spin up, configure, and maintain production vector databases to manage embeddings efficiently.
+
+4. Evaluation & Quality Control: Establish automated RAG evaluation frameworks (such as Ragas or TruLens) to continuously measure faithfulness, context recall, and minimize hallucinations.
+
+5. Integration & APIs: Build and deploy clean, production-ready REST APIs (using FastAPI or Flask) in containerized environments (Docker/Kubernetes).
+
+Required Qualifications & Technical Skills:1. Experience: 1 to 4 years of professional software engineering experience, with at least 1 year dedicated specifically to building and deploying LLM/RAG applications.
+
+2. Core Programming: Strong proficiency in Python and standard software design patterns.
+
+3. AI Frameworks: Hands-on experience with native LLM APIs or orchestrators.
+
+4. Data Parsing: Experience extracting structured information from unstructured data sources (PDFs, Markdown, HTML, and tables).
+
+Preferred (Nice-to-Have) Skills:1. Experience building Agentic RAG workflows or multi-agent systems.
+
+2. Familiarity with training/fine-tuning embeddings or cross-encoder models.
+
+3. Knowledge of Graph RAG pipelines using Graph databases (Neo4j).
+
+
+
+Skills and Qualifications
+
+
+
+• Learns to use professional concepts. Applies company policies and procedures to resolve routine issues
+
+• Works on problems of limited scope. Follows standard practices and procedures
+
+• Normally receives detailed instructions on all work
+
+• Typical entry point for university graduates
+
+
