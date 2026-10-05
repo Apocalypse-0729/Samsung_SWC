@@ -101,3 +101,16 @@ Skills and Qualifications
 • Typical entry point for university graduates
 
 
+Hi [Manager's name],
+
+I'm Hardik from the Network Modem team, MAC DL. IIT Roorkee, 2025 batch. I saw your opening for Engineer, Generative AI and wanted to reach out.
+
+I know the JD asks for experience with RAG in production, and I don't have that yet. I'm still learning, but I'm building a few projects alongside my work.
+
+Modem work has taught me to care about latency and to chase down bugs that are hard to reproduce, and I think that will help me here. I also pick up new things fast, so I should be able to get comfortable with your stack and requirements quickly.
+
+Could you let me know if I can be considered? Any feedback would be helpful too.
+
+Thanks,
+Hardik
+
